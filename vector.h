@@ -61,9 +61,15 @@ static inline vec3 vec3_scale(vec3 a, double scale)
 	return ret;
 }
 
+/** @brief calculates the squared magnitude of a vector */
 static inline double vec3_mag2(vec3 v)
 {
 	return v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2];
+}
+
+static inline double vec3_mag(vec3 v)
+{
+	return sqrt(vec3_mag2(v));
 }
 
 static inline vec3 vec3_normalize(vec3 a)
@@ -71,6 +77,8 @@ static inline vec3 vec3_normalize(vec3 a)
 	return vec3_scale(a, 1.0 / sqrt(vec3_mag2(a)));
 }
 
+vec3 vec3_component(vec3 a, vec3 b);
+vec3 vec3_make_norm(vec3 a, vec3 b);
 vec3 vec3_rand();
 void vec3_print(vec3);
 

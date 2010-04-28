@@ -1,3 +1,8 @@
+/** @file swarm.c
+ *  @brief swarm main code
+ *  @author Chris Lu <czl@andrew>
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -13,7 +18,8 @@ static void draw();
 /* timekeeper */
 static int oldtime;
 
-static vec3 cam_pos = {.v = {1.0, 1.0, 2.0}};
+/** @brief camera position */
+static vec3 cam_pos = {.v = {1.0, 1.0, 5.0}};
 
 static void handle_event(SDL_Event *ev)
 {
@@ -98,9 +104,9 @@ static void init()
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, (double)XRES/(double)YRES, 0.001, 200.0);
 
-	/* timer for updates */
+	/* timer for update and draw */
 	oldtime = SDL_GetTicks();
-	if(SDL_AddTimer(25, timer_cb, NULL) == NULL) {
+	if(SDL_AddTimer(1000 / FPS, timer_cb, NULL) == NULL) {
 		printf("Error setting update timer...\n");
 		exit(1);
 	}
