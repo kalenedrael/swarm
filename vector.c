@@ -8,6 +8,7 @@
 
 const vec3 vec3_zero = { .v = { 0.0, 0.0, 0.0 } };
 const vec3 vec3_z = { .v = { 0.0, 0.0, 1.0 } };
+const vec3 vec3_y = { .v = { 0.0, 1.0, 0.0 } };
 
 /** @brief generates uniformly distributed random vector on unit sphere */
 vec3 vec3_rand()

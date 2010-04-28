@@ -14,7 +14,7 @@ typedef struct vec3 {
 } vec3;
 
 const vec3 vec3_zero;
-const vec3 vec3_z;
+const vec3 vec3_z, vec3_y;
 
 static inline vec3 vec3_add(vec3 a, vec3 b)
 {

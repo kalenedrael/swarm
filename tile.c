@@ -7,11 +7,11 @@
 #include <float.h>
 #include <assert.h>
 
-#define NTILES 64
+#define NTILES 512
 
 #define DAMP_FACTOR  0.1   /* weight of damping term */
 #define GOAL_FACTOR  1.0   /* weight of goal-seeking term */
-#define SEP_FACTOR   0.13  /* weight of separation/cohesion term */
+#define SEP_FACTOR   0.14  /* weight of separation/cohesion term */
 #define CO_FACTOR    1.0   /* weight of separation/cohesion term */
 #define ALIGN_FACTOR 0.1   /* weight of alignment term */
 #define SEP_DIST     1.2   /* square of radius within which separation applies */
@@ -19,12 +19,14 @@
 #define ALIGN_DIST   0.25  /* square of radius within which alignment applies */
 #define SEP_MAX      10.0  /* maximum magnitude of separation force */
 
+#define SCALE_F 0.15       /* factor to scale tiles by */
+
 /** @brief tile vertex array */
 static double t_points[11][3] = {
-	{  0.0,  0.0,  1.0 }, { -0.5,  0.0,  0.0 }, { -0.5,  0.0, -1.0 },
-	{  0.0,  0.0,  0.0 }, {  0.5,  0.0, -1.0 }, {  0.5,  0.0,  0.0 },
 	{  0.0,  0.0,  1.0 }, {  0.0,  0.2,  0.5 }, {  0.0,  0.0,  0.0 },
-	{  0.0, -0.2,  0.5 }, {  0.0,  0.0,  1.0 }
+	{  0.0, -0.2,  0.5 }, {  0.0,  0.0,  1.0 }, { -0.5,  0.0,  0.0 },
+	{ -0.5,  0.0, -1.0 }, {  0.0,  0.0,  0.0 }, {  0.5,  0.0, -1.0 },
+	{  0.5,  0.0,  0.0 }, {  0.0,  0.0,  1.0 }
 };
 
 /** @brief reticle vertex array */
@@ -45,8 +47,8 @@ static GLubyte ret_elem[30] = {
 };
 
 static tile_t tiles[NTILES];
-static int tile_dlist, reticle_dlist;  /* display lists */
-vec3 tiles_dest;                       /* goal point */
+static int tile_dlist, flake_dlist, reticle_dlist;  /* display lists */
+vec3 tiles_dest;                                    /* goal point */
 
 /** @brief initializes the swarm */
 void tiles_init()
@@ -58,7 +60,7 @@ void tiles_init()
 		tiles[i].v = vec3_zero;
 	}
 
-	tiles_dest = vec3_scale(vec3_rand(), 2.0);
+	tiles_dest = vec3_scale(vec3_rand(), 4.0);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	tile_dlist = glGenLists(1);
@@ -73,6 +75,12 @@ void tiles_init()
 	glVertexPointer(3, GL_DOUBLE, 0, ret_points);
 	glDrawElements(GL_LINES, 30, GL_UNSIGNED_BYTE, ret_elem);
 	glEndList();
+
+	flake_dlist = glGenLists(1);
+	glNewList(flake_dlist, GL_COMPILE);
+	glVertexPointer(3, GL_DOUBLE, 0, t_points);
+	glDrawArrays(GL_POLYGON, 0, 4);
+	glEndList();
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 }
@@ -82,24 +90,43 @@ void tiles_init()
  */
 static void draw_one(tile_t *tile)
 {
-	vec3 col, axis;
-	double rot;
+	vec3 col, nf, nv;
+	double yaw, roll, hmag, pitch, fnv;
 
-	axis = vec3_cross(vec3_normalize(tile->v), vec3_z);
-	rot = asin(vec3_mag(axis));
-	if(vec3_dot(tile->v, vec3_z) < 0.0)
-		rot = M_PI - rot;
-	rot += M_PI;
+	/* orient in horizontal plane first */
+	yaw = atan2(tile->v.v[0], tile->v.v[2]);
+	/* orient in vertical plane */
+	hmag = sqrt(tile->v.v[0] * tile->v.v[0] + tile->v.v[2] * tile->v.v[2]);
+	pitch = atan2(-tile->v.v[1], hmag);
+
+	/* simulate banking 
+	 * first, we figure out what the component of force normal to the
+	 * velocity and y is, then we figure out what angle to roll and which
+	 * direction to roll in by computing whether the cross of y and force
+	 * component is in the same direction as the velocity
+	 *
+	 * this is probably much more complex than it needs to be
+	 */
+	nv = vec3_cross(tile->v, vec3_y);
+	nf = vec3_component(tile->f, nv);
+	fnv = vec3_dot(vec3_cross(vec3_y, nf), tile->v);
+	roll = atan2(vec3_mag(nf), 1.0);
+	if(fnv < 0.0)
+		roll = -roll;
 
 	glPushMatrix();
 	glTranslated(tile->p.v[0], tile->p.v[1], tile->p.v[2]);
-	glScaled(0.1, 0.1, 0.1);
-	glRotated((180.0 / M_PI) * rot, axis.v[0], axis.v[1], axis.v[2]);
+	glScaled(SCALE_F, SCALE_F, SCALE_F);
+	glRotated((180.0 / M_PI) * yaw, 0.0, 1.0, 0.0);
+	glRotated((180.0 / M_PI) * pitch, 1.0, 0.0, 0.0);
+	glRotated((180.0 / M_PI) * roll, 0.0, 0.0, 1.0);
 
-//	col = vec3_normalize(vec3_add(tile->v, vec3_scale(tile->p, 0.1)));
 	col = vec3_scale(tile->v, 1.5);
 	glColor3d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]));
 	glCallList(tile_dlist);
+	col = tile->f;
+	glColor3d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]));
+	glCallList(flake_dlist);
 
 	glPopMatrix();
 }
@@ -118,6 +145,12 @@ void tiles_draw()
 	glScaled(0.1, 0.1, 0.1);
 	glCallList(reticle_dlist);
 	glPopMatrix();
+}
+
+/** @brief generates a new random destination */
+void tiles_change_dest()
+{
+	tiles_dest = vec3_scale(vec3_rand(), 4.0);
 }
 
 /** @brief calculates the goal-seeking force on a tile
@@ -188,12 +221,6 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 	goal_f = calc_goal_force(tile);
 
 	return vec3_add(align_f, vec3_add(loc_f, vec3_add(goal_f, damp_f)));
-}
-
-/** @brief generates a new random destination */
-void tiles_change_dest()
-{
-	tiles_dest = vec3_scale(vec3_rand(), 2.0);
 }
 
 /** @brief updates tile positions and velocities

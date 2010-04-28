@@ -19,7 +19,7 @@ static void draw();
 static int oldtime;
 
 /** @brief camera position */
-static vec3 cam_pos = {.v = {1.0, 1.0, 5.0}};
+static vec3 cam_pos = {.v = {0.0, 0.0, 12.0}};
 
 /** @brief handle a SDL event
  *  @param ev the event to handle
@@ -95,6 +95,7 @@ static void init()
 		exit(1);
 	}
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE);
 	if(!screen) {
 		printf("Video mode init failed: %s\n", SDL_GetError());
@@ -109,6 +110,10 @@ static void init()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
+	glLineWidth(1.1);
 
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, (double)XRES/(double)YRES, 0.001, 200.0);
