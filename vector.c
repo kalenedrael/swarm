@@ -1,3 +1,8 @@
+/** @file vector.c
+ *  @brief vector manipulation functions
+ *  @author Chris Lu <czl@andrew>
+ */
+
 #include "vector.h"
 #include <stdio.h>
 

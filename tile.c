@@ -16,7 +16,7 @@
 #define ALIGN_FACTOR 0.1   /* weight of alignment term */
 #define SEP_DIST     1.2   /* square of radius within which separation applies */
 #define CO_DIST      2.0   /* square of radius within which cohesion applies */
-#define ALIGN_DIST   1.0   /* square of radius within which alignment applies */
+#define ALIGN_DIST   0.25  /* square of radius within which alignment applies */
 #define SEP_MAX      10.0  /* maximum magnitude of separation force */
 
 /** @brief tile vertex array */
@@ -126,13 +126,11 @@ void tiles_draw()
  */
 static inline vec3 calc_goal_force(tile_t *tile)
 {
-	vec3 goal_d, goal_v, goal_nv;
+	vec3 goal_d;
 
-	/* goal force is distance minus speed toward goal */
+	/* goal force is distance minus speed */
 	goal_d  = vec3_sub(tiles_dest, tile->p);
-	goal_v  = vec3_component(tile->v, goal_d);
-	goal_nv = vec3_make_norm(tile->v, goal_d);
-	return vec3_scale(vec3_sub(goal_d, vec3_add(goal_v, goal_nv)), GOAL_FACTOR);
+	return vec3_scale(vec3_sub(goal_d, tile->v), GOAL_FACTOR);
 }
 
 /** @brief calculates the total force on a tile
@@ -192,17 +190,21 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 	return vec3_add(align_f, vec3_add(loc_f, vec3_add(goal_f, damp_f)));
 }
 
+/** @brief generates a new random destination */
 void tiles_change_dest()
 {
 	tiles_dest = vec3_scale(vec3_rand(), 2.0);
 }
 
+/** @brief updates tile positions and velocities
+ *  @param dt the timestep to update for
+ */
 void tiles_update(double dt)
 {
 	int i;
 	vec3 v_tot = vec3_zero;
 
-	/* accumulate velocities of each tile */
+	/* accumulate velocities */
 	for(i = 0; i < NTILES; i++)
 		v_tot = vec3_add(v_tot, tiles[i].v);
 

@@ -1,0 +1,54 @@
+Chris Lu <czl@andrew>
+15-462 Project 5
+
+This is a simple flocking simulation using the Boids algorithm with goal-seeking
+and banking.
+
+Controls:
+w,a,s,d,q,e - move goal point
+r - reset simulation
+f - randomly select new goal point on surface of sphere
+
+====================================================
+Algorithm overview
+====================================================
+
+This implementation uses an Euler integrator, in tiles_update().
+
+Forces are calculated as follows:
+- cohesion: linear with distance to each tile up to CO_DIST
+- separation: inverse square of distance to each tile up to SEP_DIST and clamped
+  by SEP_MAX
+- alignment: the component of the average velocity of the surrounding tiles up
+  to ALIGN_DIST that is normal to the current velocity
+- goal-seeking: linear toward the goal minus the current velocity
+
+All weights are as specified at the top of tile.c; separation weight increases
+with velocity to make the swarm expand as it is moving toward a goal.
+
+Banking is done by orienting the things such that their up-vector (y) is at a
+an angle with y equal to the arctangent of the component of force normal to y.
+
+====================================================
+Other stuff
+====================================================
+
+Tiles are colored by their velocity for an interesting effect.
+
+I know the graphics are a bit spartan but I think it looks nice that way. Aiming
+for realism but falling short is terrible.
+
+The integrator is not modular, though I think with minimal work it could be made
+to be.
+
+====================================================
+Notes
+====================================================
+
+The things are called 'tiles' is named such because of the other handin, where
+the things are actually tiles. Originally this was going to be an interesting
+simulation of a swarm of defensive tiles moving to block incoming projectiles,
+but it would not meet the requirements t(*w*t)
+
+I got fed up with C++, so this handin is entirely C. The base code also seemed
+far more complex than necessary this time.

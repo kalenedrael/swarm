@@ -21,6 +21,9 @@ static int oldtime;
 /** @brief camera position */
 static vec3 cam_pos = {.v = {1.0, 1.0, 5.0}};
 
+/** @brief handle a SDL event
+ *  @param ev the event to handle
+ */
 static void handle_event(SDL_Event *ev)
 {
 	switch(ev->type) {
@@ -43,6 +46,9 @@ static void handle_event(SDL_Event *ev)
 	}
 }
 
+/** @brief timer callback
+ *  @param x the timestep
+ */
 static Uint32 timer_cb(Uint32 x, void* p)
 {
 	SDL_Event tev;
@@ -51,6 +57,7 @@ static Uint32 timer_cb(Uint32 x, void* p)
 	return x;
 }
 
+/** @brief updates the scene */
 static void update()
 {
 	int newtime = SDL_GetTicks();
@@ -62,6 +69,7 @@ static void update()
 	oldtime = newtime;
 }
 
+/** @brief draws the scene */
 static void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -77,6 +85,7 @@ static void draw()
 	SDL_GL_SwapBuffers();
 }
 
+/** @brief initializes SDL, GL, and scene state */
 static void init()
 {
 	/* set up SDL */
