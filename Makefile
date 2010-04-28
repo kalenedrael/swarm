@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g -O2 -mfpmath=sse -msse -mmmx -Wall -ffast-math
 LIBS=-lSDL -lGL -lGLU
 
-ALL_OBJS=tile.o main.o vector.o
+ALL_OBJS=tile.o swarm.o vector.o
 
 all: swarm
 
