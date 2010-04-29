@@ -110,7 +110,7 @@ static void draw_one(tile_t *tile)
 	nv = vec3_cross(tile->v, vec3_y);
 	nf = vec3_component(tile->f, nv);
 	fnv = vec3_dot(vec3_cross(vec3_y, nf), tile->v);
-	roll = atan2(vec3_mag(nf), 1.0);
+	roll = atan2(vec3_mag(nf), 2.0);
 	if(fnv < 0.0)
 		roll = -roll;
 
