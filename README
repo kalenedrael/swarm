@@ -9,6 +9,7 @@ w,s - move goal point into/out of screen
 a,d - move goal point left/right
 q,e - move goal point up/down
 f - randomly select new goal point on surface of sphere
+g - toggle follow cam
 r - reset simulation
 
 ====================================================

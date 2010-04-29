@@ -132,11 +132,18 @@ static void draw_one(tile_t *tile)
 }
 
 /** @brief draws all tiles */
-void tiles_draw()
+void tiles_draw(int follow_cam)
 {
 	int i;
+	vec3 lol;
 
-	glMatrixMode(GL_MODELVIEW);
+	if(follow_cam) {
+		lol = vec3_add(tiles[0].p, tiles[0].v);
+		gluLookAt(tiles[0].p.v[0], tiles[0].p.v[1], tiles[0].p.v[2],
+		          lol.v[0], lol.v[1], lol.v[2],
+		          0.0, 1.0, 0.0);
+	}
+
 	for(i = 0; i < NTILES; i++)
 		draw_one(&tiles[i]);
 

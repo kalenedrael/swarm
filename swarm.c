@@ -15,10 +15,10 @@ static SDL_Surface *screen;
 static void update();
 static void draw();
 
-/* timekeeper */
-static int oldtime;
+static int oldtime;                            /* timekeeper */
+static int follow_cam;                         /* whether or not to use follow cam */
 
-static vec3 d_pos = {.v = {0.0, 0.0, 0.0}};     /* goal movement */
+static vec3 d_pos = {.v = {0.0, 0.0, 0.0}};    /* goal movement */
 static vec3 cam_pos = {.v = {2.0, 2.0, 8.0}};  /* camera position */
 
 /** @brief handle a SDL event
@@ -41,6 +41,7 @@ static void handle_event(SDL_Event *ev)
 		case SDLK_k: d_pos.v[1] =  1.0; break;
 		case SDLK_r: tiles_init(); break;
 		case SDLK_f: tiles_change_dest(); break;
+		case SDLK_g: follow_cam = !follow_cam;
 		default: break;
 		}
 		break;
@@ -90,11 +91,13 @@ static void draw()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(cam_pos.v[0], cam_pos.v[1], cam_pos.v[2],
-	          0.0, 0.0, 0.0,
-	          0.0, 1.0, 0.0);
+	if(!follow_cam) {
+		gluLookAt(cam_pos.v[0], cam_pos.v[1], cam_pos.v[2],
+		          0.0, 0.0, 0.0,
+		          0.0, 1.0, 0.0);
+	}
 
-	tiles_draw();
+	tiles_draw(follow_cam);
 
 	SDL_GL_SwapBuffers();
 }
