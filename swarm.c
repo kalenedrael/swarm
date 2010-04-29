@@ -18,8 +18,8 @@ static void draw();
 /* timekeeper */
 static int oldtime;
 
-/** @brief camera position */
-static vec3 cam_pos = {.v = {0.0, 0.0, 12.0}};
+static vec3 d_pos = {.v = {0.0, 0.0, 0.0}};     /* goal movement */
+static vec3 cam_pos = {.v = {2.0, 2.0, 8.0}};  /* camera position */
 
 /** @brief handle a SDL event
  *  @param ev the event to handle
@@ -33,11 +33,24 @@ static void handle_event(SDL_Event *ev)
 		return;
 	case SDL_KEYDOWN:
 		switch(ev->key.keysym.sym) {
+		case SDLK_w: d_pos.v[2] = -1.0; break;
+		case SDLK_s: d_pos.v[2] =  1.0; break;
+		case SDLK_a: d_pos.v[0] = -1.0; break;
+		case SDLK_d: d_pos.v[0] =  1.0; break;
+		case SDLK_q: d_pos.v[1] =  1.0; break;
+		case SDLK_e: d_pos.v[1] = -1.0; break;
 		case SDLK_r: tiles_init(); break;
 		case SDLK_f: tiles_change_dest(); break;
 		default: break;
 		}
 		break;
+	case SDL_KEYUP:
+		switch(ev->key.keysym.sym) {
+		case SDLK_w: case SDLK_s: d_pos.v[2] = 0.0; break;
+		case SDLK_a: case SDLK_d: d_pos.v[0] = 0.0; break;
+		case SDLK_q: case SDLK_e: d_pos.v[1] = 0.0; break;
+		default: break;
+		}
 	case SDL_USEREVENT: /* update event */
 		draw();
 		update();
@@ -64,6 +77,7 @@ static void update()
 	int idt = newtime - oldtime;
 	double dt = (double)idt / 1000.0;
 
+	tiles_dest = vec3_add(tiles_dest, vec3_scale(d_pos, dt * 3.0));
 	tiles_update(dt);
 
 	oldtime = newtime;

@@ -7,7 +7,7 @@
 #include <float.h>
 #include <assert.h>
 
-#define NTILES 512
+#define NTILES 256
 
 #define DAMP_FACTOR  0.1   /* weight of damping term */
 #define GOAL_FACTOR  1.0   /* weight of goal-seeking term */
@@ -60,7 +60,7 @@ void tiles_init()
 		tiles[i].v = vec3_zero;
 	}
 
-	tiles_dest = vec3_scale(vec3_rand(), 4.0);
+	tiles_dest = vec3_scale(vec3_rand(), 3.0);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	tile_dlist = glGenLists(1);
@@ -142,7 +142,7 @@ void tiles_draw()
 
 	glPushMatrix();
 	glTranslated(tiles_dest.v[0], tiles_dest.v[1], tiles_dest.v[2]);
-	glScaled(0.1, 0.1, 0.1);
+	glScaled(0.15, 0.15, 0.15);
 	glCallList(reticle_dlist);
 	glPopMatrix();
 }
@@ -150,7 +150,7 @@ void tiles_draw()
 /** @brief generates a new random destination */
 void tiles_change_dest()
 {
-	tiles_dest = vec3_scale(vec3_rand(), 4.0);
+	tiles_dest = vec3_scale(vec3_rand(), 3.0);
 }
 
 /** @brief calculates the goal-seeking force on a tile
