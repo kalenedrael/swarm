@@ -37,8 +37,8 @@ static void handle_event(SDL_Event *ev)
 		case SDLK_s: d_pos.v[2] =  1.0; break;
 		case SDLK_a: d_pos.v[0] = -1.0; break;
 		case SDLK_d: d_pos.v[0] =  1.0; break;
-		case SDLK_q: d_pos.v[1] =  1.0; break;
-		case SDLK_e: d_pos.v[1] = -1.0; break;
+		case SDLK_l: d_pos.v[1] = -1.0; break;
+		case SDLK_k: d_pos.v[1] =  1.0; break;
 		case SDLK_r: tiles_init(); break;
 		case SDLK_f: tiles_change_dest(); break;
 		default: break;
@@ -48,7 +48,7 @@ static void handle_event(SDL_Event *ev)
 		switch(ev->key.keysym.sym) {
 		case SDLK_w: case SDLK_s: d_pos.v[2] = 0.0; break;
 		case SDLK_a: case SDLK_d: d_pos.v[0] = 0.0; break;
-		case SDLK_q: case SDLK_e: d_pos.v[1] = 0.0; break;
+		case SDLK_k: case SDLK_l: d_pos.v[1] = 0.0; break;
 		default: break;
 		}
 	case SDL_USEREVENT: /* update event */

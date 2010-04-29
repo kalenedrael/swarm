@@ -7,7 +7,7 @@
 #include <float.h>
 #include <assert.h>
 
-#define NTILES 256
+#define NTILES 512
 
 #define DAMP_FACTOR  0.1   /* weight of damping term */
 #define GOAL_FACTOR  1.0   /* weight of goal-seeking term */

@@ -5,9 +5,11 @@ This is a simple flocking simulation using the Boids algorithm with goal-seeking
 and banking.
 
 Controls:
-w,a,s,d,q,e - move goal point
-r - reset simulation
+w,s - move goal point into/out of screen
+a,d - move goal point left/right
+q,e - move goal point up/down
 f - randomly select new goal point on surface of sphere
+r - reset simulation
 
 ====================================================
 Algorithm overview
@@ -39,7 +41,8 @@ I know the graphics are a bit spartan but I think it looks nice that way. Aiming
 for realism but falling short is terrible.
 
 The integrator is not modular, though I think with minimal work it could be made
-to be.
+to be. Modularity could probably use some work overall, but this works well
+enough and is sufficient for a project of this size.
 
 ====================================================
 Notes
