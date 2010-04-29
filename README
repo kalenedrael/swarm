@@ -29,8 +29,9 @@ Forces are calculated as follows:
 All weights are as specified at the top of tile.c; separation weight increases
 with velocity to make the swarm expand as it is moving toward a goal.
 
-Banking is done by orienting the things such that their up-vector (y) is at a
-an angle with y equal to the arctangent of the component of force normal to y.
+Banking is done by rotating the things by the arctangent of the magnitude of the
+lateral force over the up-vector; more lateral force means angle of rotation
+closer to 90 degrees.
 
 ====================================================
 Other stuff
@@ -48,6 +49,8 @@ enough and is sufficient for a project of this size.
 ====================================================
 Notes
 ====================================================
+
+Try changing NTILES in tiles.c for different effects.
 
 The things are called 'tiles' is named such because of the other handin, where
 the things are actually tiles. Originally this was going to be an interesting
