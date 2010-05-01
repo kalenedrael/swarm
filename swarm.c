@@ -16,7 +16,8 @@ static void update();
 static void draw();
 
 static int oldtime;                            /* timekeeper */
-static int follow_cam;                         /* whether or not to use follow cam */
+static int follow_cam = 0;                     /* use follow cam? */
+static int randomize = 0;                      /* randomize point? */
 
 static vec3 d_pos = {.v = {0.0, 0.0, 0.0}};    /* goal movement */
 static vec3 cam_pos = {.v = {2.0, 2.0, 8.0}};  /* camera position */
@@ -41,7 +42,9 @@ static void handle_event(SDL_Event *ev)
 		case SDLK_k: d_pos.v[1] =  1.0; break;
 		case SDLK_r: tiles_init(); break;
 		case SDLK_f: tiles_change_dest(); break;
-		case SDLK_g: follow_cam = !follow_cam;
+		case SDLK_p: randomize = !randomize; break;
+		case SDLK_g: follow_cam = !follow_cam; break;
+		case SDLK_q: exit(0);
 		default: break;
 		}
 		break;
@@ -53,8 +56,13 @@ static void handle_event(SDL_Event *ev)
 		default: break;
 		}
 	case SDL_USEREVENT: /* update event */
-		draw();
-		update();
+		if(ev->user.code == 1) {
+			draw();
+			update();
+		}
+		else if(randomize) {
+			tiles_change_dest();
+		}
 	default:
 		return;
 	}
@@ -67,8 +75,18 @@ static Uint32 timer_cb(Uint32 x, void* p)
 {
 	SDL_Event tev;
 	tev.user.type = SDL_USEREVENT;
+	tev.user.code = 1;
 	SDL_PushEvent(&tev);
 	return x;
+}
+
+static Uint32 rand_cb(Uint32 x, void *p)
+{
+	SDL_Event ev;
+	ev.user.type = SDL_USEREVENT;
+	ev.user.code = 2;
+	SDL_PushEvent(&ev);
+	return lrand48() % 20000;
 }
 
 /** @brief updates the scene */
@@ -113,7 +131,7 @@ static void init()
 	}
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE);
+	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE | SDL_FULLSCREEN);
 	if(!screen) {
 		printf("Video mode init failed: %s\n", SDL_GetError());
 		exit(1);
@@ -139,6 +157,10 @@ static void init()
 	oldtime = SDL_GetTicks();
 	if(SDL_AddTimer(1000 / FPS, timer_cb, NULL) == NULL) {
 		printf("Error setting update timer...\n");
+		exit(1);
+	}
+	if(SDL_AddTimer(3000, rand_cb, NULL) == NULL) {
+		printf("Error setting randomize timer...\n");
 		exit(1);
 	}
 
