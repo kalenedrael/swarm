@@ -65,8 +65,8 @@ void tiles_init()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	tile_dlist = glGenLists(1);
 	glNewList(tile_dlist, GL_COMPILE);
-	glVertexPointer(3, GL_DOUBLE, 0, t_points);
-	glDrawArrays(GL_LINE_STRIP, 0, sizeof(t_points)/(sizeof(double) * 3));
+	glVertexPointer(3, GL_DOUBLE, 0, t_points + 4);
+	glDrawArrays(GL_POLYGON, 0, sizeof(t_points)/(sizeof(double) * 3) - 4);
 	glEndList();
 
 	reticle_dlist = glGenLists(1);

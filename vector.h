@@ -1,4 +1,4 @@
-/** @file vector.c
+/** @file vector.h
  *  @brief vector declarations and functions
  *  @author Chris Lu <czl@andrew>
  */
