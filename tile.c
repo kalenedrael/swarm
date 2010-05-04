@@ -47,8 +47,7 @@ static GLubyte ret_elem[30] = {
 };
 
 static tile_t tiles[NTILES];
-static int tile_dlist, flake_dlist, reticle_dlist,  /* display lists */
-           euler_dlist, midpt_dlist, rk4_dlist;
+static int tile_dlist, flake_dlist, reticle_dlist;  /* display lists */
 vec3 tiles_dest;                                    /* goal point */
 
 /** @brief initializes the swarm */
