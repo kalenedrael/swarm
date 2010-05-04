@@ -16,12 +16,18 @@ typedef struct tile_t {
 	vec3 f;  /* force */
 } tile_t;
 
+enum {
+	INTEG_EULER,
+	INTEG_MIDPT,
+	INTEG_RK4
+};
+
 /** @brief */
 extern vec3 tiles_dest;
 
 void tiles_init();
-void tiles_draw(int follow_cam);
-void tiles_update(double dt);
+void tiles_draw(int follow_cam, int integ);
+void tiles_update(double dt, int integ);
 void tiles_change_dest();
 
 #endif /* _TILE_H_ */

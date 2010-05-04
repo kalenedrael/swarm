@@ -47,7 +47,8 @@ static GLubyte ret_elem[30] = {
 };
 
 static tile_t tiles[NTILES];
-static int tile_dlist, flake_dlist, reticle_dlist;  /* display lists */
+static int tile_dlist, flake_dlist, reticle_dlist,  /* display lists */
+           euler_dlist, midpt_dlist, rk4_dlist;
 vec3 tiles_dest;                                    /* goal point */
 
 /** @brief initializes the swarm */
@@ -81,8 +82,8 @@ void tiles_init()
 	glVertexPointer(3, GL_DOUBLE, 0, t_points);
 	glDrawArrays(GL_POLYGON, 0, 4);
 	glEndList();
-	glDisableClientState(GL_VERTEX_ARRAY);
 
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 /** @brief draws the given tile
@@ -121,18 +122,18 @@ static void draw_one(tile_t *tile)
 	glRotated((180.0 / M_PI) * pitch, 1.0, 0.0, 0.0);
 	glRotated((180.0 / M_PI) * roll, 0.0, 0.0, 1.0);
 
-	col = vec3_scale(tile->v, 1.5);
-	glColor3d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]));
+	col = vec3_normalize(vec3_scale(tile->v, 1.5));
+	glColor4d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->v));
 	glCallList(tile_dlist);
-	col = tile->f;
-	glColor3d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]));
+	col = vec3_normalize(tile->f);
+	glColor4d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->f));
 	glCallList(flake_dlist);
 
 	glPopMatrix();
 }
 
 /** @brief draws all tiles */
-void tiles_draw(int follow_cam)
+void tiles_draw(int follow_cam, int integ_type)
 {
 	int i;
 	vec3 lol;
@@ -223,17 +224,68 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 	}
 
 	/* separation factor increases with velocity for effect */
-	loc_f = vec3_add(vec3_neg(co_f), vec3_scale(sep_f, SEP_FACTOR + vec3_mag(v_tot) * 0.2));
+	loc_f = vec3_add(vec3_neg(co_f), vec3_scale(sep_f, SEP_FACTOR + vec3_mag(v_tot) * 0.1));
 	damp_f = vec3_scale(vec3_neg(tile->v), DAMP_FACTOR);
 	goal_f = calc_goal_force(tile);
 
 	return vec3_add(align_f, vec3_add(loc_f, vec3_add(goal_f, damp_f)));
 }
 
+static void integ_midpt(double dt, vec3 v_tot)
+{
+	int i;
+	vec3 tp, tv, k1;
+
+	for(i = 0; i < NTILES; i++) {
+		k1 = calc_force(&tiles[i], v_tot);
+
+		tp = tiles[i].p;
+		tv = tiles[i].v;
+
+		tiles[i].p = vec3_add(tp, vec3_scale(tiles[i].v, dt * 0.5));
+		tiles[i].v = vec3_add(tv, vec3_scale(k1, dt * 0.5));
+		tiles[i].f = calc_force(&tiles[i], v_tot);
+
+		tiles[i].p = tp;
+		tiles[i].v = tv;
+	}
+}
+
+static void integ_rk4(double dt, vec3 v_tot)
+{
+	int i;
+	vec3 k1, k2, k3, k4, tp, tv;
+
+	for(i = 0; i < NTILES; i++) {
+		k1 = calc_force(&tiles[i], v_tot);
+
+		tp = tiles[i].p;
+		tv = tiles[i].v;
+
+		tiles[i].p = vec3_add(tp, vec3_scale(tiles[i].v, dt * 0.5));
+		tiles[i].v = vec3_add(tv, vec3_scale(k1, dt * 0.5));
+		k2 = calc_force(&tiles[i], v_tot);
+
+		tiles[i].p = vec3_add(tp, vec3_scale(tiles[i].v, dt * 0.5));
+		tiles[i].v = vec3_add(tv, vec3_scale(k2, dt * 0.5));
+		k3 = calc_force(&tiles[i], v_tot);
+
+		tiles[i].p = vec3_add(tp, vec3_scale(tiles[i].v, dt));
+		tiles[i].v = vec3_add(tv, vec3_scale(k3, dt));
+		k4 = calc_force(&tiles[i], v_tot);
+
+		tiles[i].p = tp;
+		tiles[i].v = tv;
+
+		tiles[i].f = vec3_add(vec3_scale(vec3_add(k2, k3), 1.0 / 3.0), 
+		                      vec3_scale(vec3_add(k1, k4), 1.0 / 6.0));
+	}
+}
+
 /** @brief updates tile positions and velocities
  *  @param dt the timestep to update for
  */
-void tiles_update(double dt)
+void tiles_update(double dt, int integ)
 {
 	int i;
 	vec3 v_tot = vec3_zero;
@@ -244,10 +296,18 @@ void tiles_update(double dt)
 
 	v_tot = vec3_scale(v_tot, 1.0 / NTILES);
 
-	/* Euler integrate for each tile */
+	/* integrate for each tile */
+	switch(integ) {
+	case INTEG_EULER:
+		for(i = 0; i < NTILES; i++)
+			tiles[i].f = calc_force(&tiles[i], v_tot);
+		break;
+	case INTEG_MIDPT: integ_midpt(dt, v_tot); break;
+	case INTEG_RK4: integ_rk4(dt, v_tot); break;
+	}
+
 	for(i = 0; i < NTILES; i++) {
-		tiles[i].f = calc_force(&tiles[i], v_tot);
-		tiles[i].p = vec3_add(vec3_scale(tiles[i].v, dt), tiles[i].p);
 		tiles[i].v = vec3_add(vec3_scale(tiles[i].f, dt), tiles[i].v);
+		tiles[i].p = vec3_add(vec3_scale(tiles[i].v, dt), tiles[i].p);
 	}
 }

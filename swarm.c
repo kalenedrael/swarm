@@ -18,6 +18,7 @@ static void draw();
 static int oldtime;                            /* timekeeper */
 static int follow_cam = 0;                     /* use follow cam? */
 static int randomize = 0;                      /* randomize point? */
+static int integrator = INTEG_EULER;           /* integrator type */
 
 static vec3 d_pos = {.v = {0.0, 0.0, 0.0}};    /* goal movement */
 static vec3 cam_pos = {.v = {2.0, 2.0, 8.0}};  /* camera position */
@@ -40,10 +41,18 @@ static void handle_event(SDL_Event *ev)
 		case SDLK_d: d_pos.v[0] =  1.0; break;
 		case SDLK_l: d_pos.v[1] = -1.0; break;
 		case SDLK_k: d_pos.v[1] =  1.0; break;
+
 		case SDLK_r: tiles_init(); break;
 		case SDLK_f: tiles_change_dest(); break;
 		case SDLK_p: randomize = !randomize; break;
 		case SDLK_g: follow_cam = !follow_cam; break;
+		case SDLK_x:
+			switch(integrator) {
+			case INTEG_EULER: integrator = INTEG_MIDPT; break;
+			case INTEG_MIDPT: integrator = INTEG_RK4; break;
+			case INTEG_RK4  : integrator = INTEG_EULER; break;
+			}
+			break;
 		case SDLK_q: exit(0);
 		default: break;
 		}
@@ -97,7 +106,7 @@ static void update()
 	double dt = (double)idt / 1000.0;
 
 	tiles_dest = vec3_add(tiles_dest, vec3_scale(d_pos, dt * 3.0));
-	tiles_update(dt);
+	tiles_update(dt, integrator);
 
 	oldtime = newtime;
 }
@@ -115,7 +124,7 @@ static void draw()
 		          0.0, 1.0, 0.0);
 	}
 
-	tiles_draw(follow_cam);
+	tiles_draw(follow_cam, integrator);
 
 	SDL_GL_SwapBuffers();
 }
@@ -131,7 +140,7 @@ static void init()
 	}
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE | SDL_FULLSCREEN);
+	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE);
 	if(!screen) {
 		printf("Video mode init failed: %s\n", SDL_GetError());
 		exit(1);
@@ -144,11 +153,14 @@ static void init()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_COLOR_MATERIAL);
-	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_POLYGON_SMOOTH);
 	glLineWidth(1.1);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, (double)XRES/(double)YRES, 0.001, 200.0);
