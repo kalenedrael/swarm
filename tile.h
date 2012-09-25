@@ -27,7 +27,7 @@ extern vec3 tiles_dest;
 
 void tiles_init();
 void tiles_draw(int follow_cam, int integ);
-void tiles_update(double dt, int integ);
+void tiles_update(real_t dt, int integ);
 void tiles_change_dest();
 
 #endif /* _TILE_H_ */

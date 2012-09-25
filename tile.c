@@ -22,7 +22,7 @@
 #define SCALE_F 0.15       /* factor to scale tiles by */
 
 /** @brief tile vertex array */
-static double t_points[11][3] = {
+static real_t t_points[11][3] = {
 	{  0.0,  0.0,  1.0 }, {  0.0,  0.2,  0.5 }, {  0.0,  0.0,  0.0 },
 	{  0.0, -0.2,  0.5 }, {  0.0,  0.0,  1.0 }, { -0.5,  0.0,  0.0 },
 	{ -0.5,  0.0, -1.0 }, {  0.0,  0.0,  0.0 }, {  0.5,  0.0, -1.0 },
@@ -30,7 +30,7 @@ static double t_points[11][3] = {
 };
 
 /** @brief reticle vertex array */
-static double ret_points[14][3] = {
+static real_t ret_points[14][3] = {
 	{ 0.5, 0.0, 0.0 }, {-0.5,  0.0,  0.0},
 	{ 0.0, 0.5, 0.0 }, { 0.0, -0.5,  0.0},
 	{ 0.0, 0.0, 0.5 }, { 0.0,  0.0, -0.5},
@@ -65,20 +65,20 @@ void tiles_init()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	tile_dlist = glGenLists(1);
 	glNewList(tile_dlist, GL_COMPILE);
-	glVertexPointer(3, GL_DOUBLE, 0, t_points + 4);
-	glDrawArrays(GL_POLYGON, 0, sizeof(t_points)/(sizeof(double) * 3) - 4);
+	glVertexPointer(3, GL_SIZE, 0, t_points + 4);
+	glDrawArrays(GL_POLYGON, 0, sizeof(t_points)/(sizeof(real_t) * 3) - 4);
 	glEndList();
 
 	reticle_dlist = glGenLists(1);
 	glNewList(reticle_dlist, GL_COMPILE);
 	glColor3f(1.0, 1.0, 1.0);
-	glVertexPointer(3, GL_DOUBLE, 0, ret_points);
+	glVertexPointer(3, GL_SIZE, 0, ret_points);
 	glDrawElements(GL_LINES, 30, GL_UNSIGNED_BYTE, ret_elem);
 	glEndList();
 
 	flake_dlist = glGenLists(1);
 	glNewList(flake_dlist, GL_COMPILE);
-	glVertexPointer(3, GL_DOUBLE, 0, t_points);
+	glVertexPointer(3, GL_SIZE, 0, t_points);
 	glDrawArrays(GL_POLYGON, 0, 4);
 	glEndList();
 
@@ -91,7 +91,7 @@ void tiles_init()
 static void draw_one(tile_t *tile)
 {
 	vec3 col, nf, nv;
-	double yaw, roll, hmag, pitch, fnv;
+	real_t yaw, roll, hmag, pitch, fnv;
 
 	/* orient in horizontal plane first */
 	yaw = atan2(tile->v.v[0], tile->v.v[2]);
@@ -115,17 +115,17 @@ static void draw_one(tile_t *tile)
 		roll = -roll;
 
 	glPushMatrix();
-	glTranslated(tile->p.v[0], tile->p.v[1], tile->p.v[2]);
-	glScaled(SCALE_F, SCALE_F, SCALE_F);
-	glRotated((180.0 / M_PI) * yaw, 0.0, 1.0, 0.0);
-	glRotated((180.0 / M_PI) * pitch, 1.0, 0.0, 0.0);
-	glRotated((180.0 / M_PI) * roll, 0.0, 0.0, 1.0);
+	glTranslate(tile->p.v[0], tile->p.v[1], tile->p.v[2]);
+	glScale(SCALE_F, SCALE_F, SCALE_F);
+	glRotate((180.0 / M_PI) * yaw, 0.0, 1.0, 0.0);
+	glRotate((180.0 / M_PI) * pitch, 1.0, 0.0, 0.0);
+	glRotate((180.0 / M_PI) * roll, 0.0, 0.0, 1.0);
 
 	col = vec3_normalize(vec3_scale(tile->v, 1.5));
-	glColor4d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->v));
+	glColor4(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->v));
 	glCallList(tile_dlist);
 	col = vec3_normalize(tile->f);
-	glColor4d(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->f));
+	glColor4(fabs(col.v[0]), fabs(col.v[1]), fabs(col.v[2]), vec3_mag(tile->f));
 	glCallList(flake_dlist);
 
 	glPopMatrix();
@@ -148,8 +148,8 @@ void tiles_draw(int follow_cam, int integ_type)
 		draw_one(&tiles[i]);
 
 	glPushMatrix();
-	glTranslated(tiles_dest.v[0], tiles_dest.v[1], tiles_dest.v[2]);
-	glScaled(0.15, 0.15, 0.15);
+	glTranslate(tiles_dest.v[0], tiles_dest.v[1], tiles_dest.v[2]);
+	glScale(0.15, 0.15, 0.15);
 	glCallList(reticle_dlist);
 	glPopMatrix();
 }
@@ -182,7 +182,7 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 {
 	vec3 sep_f = vec3_zero, co_f = vec3_zero, loc_v = tile->v;
 	vec3 damp_f, goal_f, loc_f, align_f;
-	double m;
+	real_t m;
 	int i, align_n = 0;
 
 	/* calculate local forces */
@@ -191,7 +191,7 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 			continue;
 
 		vec3 dir = vec3_sub(tile->p, tiles[i].p);
-		double d2 = vec3_mag2(dir);
+		real_t d2 = vec3_mag2(dir);
 
 		/* accumulate cohesion forces */
 		if(d2 < CO_DIST)
@@ -215,7 +215,7 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 
 	/* make alignment force normal to the current velocity */
 	if(align_n != 0) {
-		loc_v = vec3_scale(loc_v, 1.0 / (double)align_n);
+		loc_v = vec3_scale(loc_v, 1.0 / (real_t)align_n);
 		align_f = vec3_make_norm(vec3_scale(loc_v, ALIGN_FACTOR), tile->v);
 	}
 	else {
@@ -230,7 +230,7 @@ static vec3 calc_force(tile_t *tile, vec3 v_tot)
 	return vec3_add(align_f, vec3_add(loc_f, vec3_add(goal_f, damp_f)));
 }
 
-static void integ_midpt(double dt, vec3 v_tot)
+static void integ_midpt(real_t dt, vec3 v_tot)
 {
 	int i;
 	vec3 tp, tv, k1;
@@ -250,7 +250,7 @@ static void integ_midpt(double dt, vec3 v_tot)
 	}
 }
 
-static void integ_rk4(double dt, vec3 v_tot)
+static void integ_rk4(real_t dt, vec3 v_tot)
 {
 	int i;
 	vec3 k1, k2, k3, k4, tp, tv;
@@ -284,7 +284,7 @@ static void integ_rk4(double dt, vec3 v_tot)
 /** @brief updates tile positions and velocities
  *  @param dt the timestep to update for
  */
-void tiles_update(double dt, int integ)
+void tiles_update(real_t dt, int integ)
 {
 	int i;
 	vec3 v_tot = vec3_zero;

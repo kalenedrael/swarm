@@ -14,9 +14,9 @@ const vec3 vec3_y = { .v = { 0.0, 1.0, 0.0 } };
 vec3 vec3_rand()
 {
 	vec3 ret;
-	double theta = drand48() * (2.0 * M_PI);
-	double u = drand48() * 2.0 - 1.0;
-	double v = sqrt(1.0 - u * u);
+	real_t theta = drand48() * (2.0 * M_PI);
+	real_t u = drand48() * 2.0 - 1.0;
+	real_t v = sqrt(1.0 - u * u);
 
 	ret.v[0] = v * cos(theta);
 	ret.v[1] = v * sin(theta);
@@ -31,7 +31,7 @@ vec3 vec3_rand()
  */
 vec3 vec3_component(vec3 a, vec3 b)
 {
-	double mag2 = vec3_mag2(b);
+	real_t mag2 = vec3_mag2(b);
 
 	if(mag2 == 0.0)
 		return vec3_zero;
@@ -47,7 +47,7 @@ vec3 vec3_component(vec3 a, vec3 b)
  */
 vec3 vec3_make_norm(vec3 a, vec3 b)
 {
-	double mag2 = vec3_mag2(b);
+	real_t mag2 = vec3_mag2(b);
 
 	if(mag2 == 0.0)
 		return vec3_zero;

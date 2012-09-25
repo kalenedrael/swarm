@@ -8,9 +8,10 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "globals.h"
 
 typedef struct vec3 {
-	double v[3];
+	real_t v[3];
 } vec3;
 
 const vec3 vec3_zero;
@@ -43,7 +44,7 @@ static inline vec3 vec3_neg(vec3 v)
 	return ret;
 }
 
-static inline double vec3_dot(vec3 a, vec3 b)
+static inline real_t vec3_dot(vec3 a, vec3 b)
 {
 	return a.v[0] * b.v[0] + a.v[1] * b.v[1] + a.v[2] * b.v[2];
 }
@@ -57,7 +58,7 @@ static inline vec3 vec3_cross(vec3 a, vec3 b)
 	return ret;
 }
 
-static inline vec3 vec3_scale(vec3 a, double scale)
+static inline vec3 vec3_scale(vec3 a, real_t scale)
 {
 	vec3 ret;
 	ret.v[0] = a.v[0] * scale;
@@ -67,12 +68,12 @@ static inline vec3 vec3_scale(vec3 a, double scale)
 }
 
 /** @brief calculates the squared magnitude of a vector */
-static inline double vec3_mag2(vec3 v)
+static inline real_t vec3_mag2(vec3 v)
 {
 	return v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2];
 }
 
-static inline double vec3_mag(vec3 v)
+static inline real_t vec3_mag(vec3 v)
 {
 	return sqrt(vec3_mag2(v));
 }

@@ -103,7 +103,7 @@ static void update()
 {
 	int newtime = SDL_GetTicks();
 	int idt = newtime - oldtime;
-	double dt = (double)idt / 1000.0;
+	real_t dt = (real_t)idt / 1000.0;
 
 	tiles_dest = vec3_add(tiles_dest, vec3_scale(d_pos, dt * 3.0));
 	tiles_update(dt, integrator);
