@@ -11,12 +11,11 @@ q,e - move goal point up/down
 f - randomly select new goal point on surface of sphere
 g - toggle follow cam
 r - reset simulation
+x - toggle integrator (euler (default) -> midpoint -> RK4)
 
 ====================================================
 Algorithm overview
 ====================================================
-
-This implementation uses an Euler integrator, in tiles_update().
 
 Forces are calculated as follows:
 - cohesion: linear with distance to each tile up to CO_DIST
@@ -34,16 +33,9 @@ lateral force over the up-vector; more lateral force means angle of rotation
 closer to 90 degrees.
 
 ====================================================
-Other stuff
+Notes
 ====================================================
 
 Tiles are colored by their velocity for an interesting effect.
-
-I know the graphics are a bit spartan but I think it looks nice that way. Aiming
-for realism but falling short is terrible.
-
-====================================================
-Notes
-====================================================
 
 Try changing NTILES in tiles.c for different effects.
