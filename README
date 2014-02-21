@@ -42,20 +42,8 @@ Tiles are colored by their velocity for an interesting effect.
 I know the graphics are a bit spartan but I think it looks nice that way. Aiming
 for realism but falling short is terrible.
 
-The integrator is not modular, though I think with minimal work it could be made
-to be. Modularity could probably use some work overall, but this works well
-enough and is sufficient for a project of this size.
-
 ====================================================
 Notes
 ====================================================
 
 Try changing NTILES in tiles.c for different effects.
-
-The things are called 'tiles' is named such because of the other handin, where
-the things are actually tiles. Originally this was going to be an interesting
-simulation of a swarm of defensive tiles moving to block incoming projectiles,
-but it would not meet the requirements t(*w*t)
-
-I got fed up with C++, so this handin is entirely C. The base code also seemed
-far more complex than necessary this time.
