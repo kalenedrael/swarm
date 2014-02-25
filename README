@@ -1,8 +1,6 @@
-Chris Lu <czl@andrew>
-15-462 Project 5
-
-This is a simple flocking simulation using the Boids algorithm with goal-seeking
-and banking.
+This is a simple flocking simulation using the Boids algorithm. Originally
+written for 15-462. Could be adapted into a screensaver, if anyone even uses
+those anymore.
 
 Controls:
 w,s - move goal point into/out of screen
